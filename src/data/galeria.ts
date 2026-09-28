@@ -9,14 +9,14 @@ export type CategoriaGaleria =
   | "Reconocimientos"
   | "Clases";
 
-import imgCopaAzulejoInvierno from "@/assets/images/galeria-01-copa-azulejo-invierno.jpg";
-import imgEstimulacionTemprana from "@/assets/images/galeria-02-estimulacion-temprana.jpg";
-import imgNadoSincronizado from "@/assets/images/galeria-03-nado-sincronizado.jpg";
-import imgCertificacionFina from "@/assets/images/galeria-04-certificacion-fina.jpg";
-import imgBiomecanicaAvanzada from "@/assets/images/galeria-05-biomecanica-avanzada.jpg";
-import imgInterclubesRegional from "@/assets/images/galeria-06-interclubes-regional.jpg";
-import imgMedallistasEstatales from "@/assets/images/galeria-07-medallistas-estatales.jpg";
-import imgClaseAbiertaFamilias from "@/assets/images/galeria-08-clase-abierta-familias.jpg";
+import imgCopaAzulejoInvierno from "@/assets/images/galeria-01-copa-azulejo-invierno.webp";
+import imgEstimulacionTemprana from "@/assets/images/galeria-02-estimulacion-temprana.webp";
+import imgNadoSincronizado from "@/assets/images/galeria-03-nado-sincronizado.webp";
+import imgCertificacionFina from "@/assets/images/galeria-04-certificacion-fina.webp";
+import imgBiomecanicaAvanzada from "@/assets/images/galeria-05-biomecanica-avanzada.webp";
+import imgInterclubesRegional from "@/assets/images/galeria-06-interclubes-regional.webp";
+import imgMedallistasEstatales from "@/assets/images/galeria-07-medallistas-estatales.webp";
+import imgClaseAbiertaFamilias from "@/assets/images/galeria-08-clase-abierta-familias.webp";
 
 export interface ItemGaleria {
   id: string;

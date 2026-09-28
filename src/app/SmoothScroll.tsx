@@ -12,29 +12,26 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
   useEffect(() => {
-    /* Respect reduced-motion preference */
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches) return;
+    const isFine = window.matchMedia("(pointer: fine)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!isFine || reducedMotion) return;
 
     const lenis = new Lenis({
       duration: 1.1,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       touchMultiplier: 1.5,
+      autoRaf: true,
     });
 
     lenisRef.current = lenis;
     // @ts-ignore - expose globally for anchor scrolling
     window.lenis = lenis;
 
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-
     return () => {
       lenis.destroy();
       lenisRef.current = null;
+      // @ts-ignore
+      delete window.lenis;
     };
   }, []);
 
@@ -50,7 +47,11 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
         lenisRef.current.scrollTo(0, { immediate: true });
       }
     } else {
-      if (!location.hash) window.scrollTo(0, 0);
+      if (location.hash) {
+        document.querySelector(location.hash)?.scrollIntoView();
+      } else {
+        window.scrollTo(0, 0);
+      }
     }
   }, [location.pathname, location.hash]);
 

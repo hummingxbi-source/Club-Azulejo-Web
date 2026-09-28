@@ -5,9 +5,9 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Divider } from "@/components/ui/Divider";
 import { Button } from "@/components/ui/Button";
 import { INSTRUCTORES, type InstructorData } from "@/data/instructores";
-import fotoValeria from "@/assets/images/instructor-valeria-montes.jpg";
-import fotoMarcos from "@/assets/images/instructor-marcos-estrada.jpg";
-import fotoElena from "@/assets/images/instructor-elena-santillan.jpg";
+import fotoValeria from "@/assets/images/instructor-valeria-montes.webp";
+import fotoMarcos from "@/assets/images/instructor-marcos-estrada.webp";
+import fotoElena from "@/assets/images/instructor-elena-santillan.webp";
 
 const FOTOS: Record<string, string> = {
   "valeria-montes": fotoValeria,
@@ -26,13 +26,20 @@ function InstructorCard({ instructor }: { instructor: InstructorData }) {
     <Card style={{ padding: 0, display: "flex", flexDirection: "column", height: "100%" }}>
       {/* ── Bloque de foto (placeholder) ───────────────────────── */}
       <div style={{ position: "relative" }}>
-        <div
-          aria-label={`Foto de ${instructor.nombre}`}
+        <img
+          src={FOTOS[instructor.id]}
+          alt={`Foto de ${instructor.nombre}`}
+          loading="lazy"
+          decoding="async"
+          width={800}
+          height={1000}
           style={{
             aspectRatio: "4 / 5",
-            backgroundImage: `url(${FOTOS[instructor.id]})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center top",
+            objectFit: "cover",
+            objectPosition: "center top",
+            width: "100%",
+            height: "100%",
+            display: "block",
             borderRadius: "var(--radius-card) var(--radius-card) 0 0",
           }}
         />

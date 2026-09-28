@@ -3,8 +3,6 @@ import { createRoot } from "react-dom/client";
 import { App } from "@/app/App";
 
 /* Self-hosted variable fonts (no external requests) */
-import "@fontsource-variable/newsreader";
-import "@fontsource-variable/newsreader/wght-italic.css";
 import "@fontsource-variable/fraunces";
 import "@fontsource-variable/manrope";
 

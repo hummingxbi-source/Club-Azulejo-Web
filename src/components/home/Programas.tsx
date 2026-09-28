@@ -23,7 +23,7 @@ function NivelBloque({
   const isActual = nivel.estado === "actual";
 
   return (
-    <Reveal delay={index * 0.1} style={{ display: "contents" }}>
+    <Reveal delay={index * 0.1} style={{ height: "100%" }}>
       {/* Wrapper que se convierte en columna desktop / fila mobile */}
       <div
         className={`riel-bloque ${isActual ? "riel-bloque--actual" : ""}`}

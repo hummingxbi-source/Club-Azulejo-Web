@@ -33,7 +33,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       letterSpacing: "0.01em",
       borderRadius: "var(--radius-pill)",
       cursor: "pointer",
-      transition: "all var(--duration-md) var(--ease-out)",
+      transition: "background-color var(--duration-md) var(--ease-out), border-color var(--duration-md) var(--ease-out), filter var(--duration-md) var(--ease-out), transform var(--duration-md) var(--ease-out), opacity var(--duration-md) var(--ease-out)",
       whiteSpace: "nowrap",
       border: "none",
       textDecoration: "none",

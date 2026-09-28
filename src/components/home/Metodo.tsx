@@ -3,10 +3,10 @@ import { Container } from "@/components/ui/Container";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Divider } from "@/components/ui/Divider";
 import { Reveal } from "@/components/ui/Reveal";
-import metodoImg from "@/assets/images/metodo.jpg";
-import imgPilar01 from "@/assets/images/metodo-pilar-01-adaptacion.jpg";
-import imgPilar02 from "@/assets/images/metodo-pilar-02-biomecanica.jpg";
-import imgPilar03 from "@/assets/images/metodo-pilar-03-bitacora.jpg";
+import metodoImg from "@/assets/images/metodo.webp";
+import imgPilar01 from "@/assets/images/metodo-pilar-01-adaptacion.webp";
+import imgPilar02 from "@/assets/images/metodo-pilar-02-biomecanica.webp";
+import imgPilar03 from "@/assets/images/metodo-pilar-03-bitacora.webp";
 
 /* ────────────────────────────────────────────────────────────────
    Metodo — sección "El Método" (Home)
@@ -52,12 +52,16 @@ export function Metodo() {
       <div className="metodo-hero-row">
         <div className="metodo-panel-col">
           <div className="metodo-panel">
-            <div
+            <img
+              src={metodoImg}
+              alt="Método"
+              loading="lazy"
+              decoding="async"
               className="metodo-panel-image"
               style={{
-                backgroundImage: `url(${metodoImg})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
+                objectFit: "cover",
+                width: "100%",
+                height: "100%",
               }}
             />
           </div>
@@ -150,7 +154,7 @@ export function Metodo() {
                   }`}
                 >
                   <div className="metodo-pilar-image-col">
-                    <img src={image} alt={title} className="metodo-pilar-image" />
+                    <img src={image} alt={title} className="metodo-pilar-image" loading="lazy" decoding="async" width={900} height={675} />
                   </div>
                   <div className="metodo-pilar-text-col">
                     <span

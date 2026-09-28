@@ -17,7 +17,6 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
   scroll-behavior: auto; /* Lenis handles smooth scroll */
 }
 
@@ -32,20 +31,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ── Caustic layer stacking ────────────────────── */
-/* The caustic overlay (position:fixed, z-index:0) is injected by
-   useSectionBackground. The #root wrapper must sit above it. */
-#root {
-  position: relative;
-  z-index: 1;
-}
 
-/* Caustic layer: GPU-only properties to avoid repaint on scroll */
-#caustic-layer {
-  /* opacity + transform are set via JS / CSS animation — both GPU-composited */
-  backface-visibility: hidden;
-  /* Ensure text on top of caustic remains AA-compliant (text sits in #root z:1) */
-}
 
 img,
 video,

@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { motion, useScroll, useTransform, useMotionValueEvent, useMotionTemplate } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
@@ -10,10 +10,14 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
     dissolve, and staggered text entrance
    ──────────────────────────────────────────────── */
 
+const ZOOM_ORIGIN = "50% 100%";
+const ZOOM_MAX_DESKTOP = 3;
+const ZOOM_MAX_TOUCH = 2.2;
+
 /* Attempt to load the hero image; fall back to CSS gradient */
 let heroSrc: string | null = null;
 try {
-  const modules = import.meta.glob("@/assets/images/hero.jpg", { eager: true, query: "?url", import: "default" });
+  const modules = import.meta.glob("@/assets/images/hero.webp", { eager: true, query: "?url", import: "default" });
   const key = Object.keys(modules)[0];
   if (key) heroSrc = modules[key] as string;
 } catch {
@@ -47,16 +51,17 @@ export function Hero() {
     offset: ["start start", "end end"],
   });
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    console.log("Hero scrollYProgress:", latest.toFixed(3));
-  });
-
   /* Parallax + zoom: image moves slower than scroll and scales up */
-  const imageScale = useTransform(scrollYProgress, [0, 0.6], [1, 3]);
+  const isCoarse = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+  const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const maxScale = reducedMotion ? 1 : (isCoarse ? ZOOM_MAX_TOUCH : ZOOM_MAX_DESKTOP);
+  const imageScale = useTransform(scrollYProgress, [0, 0.6], [1, maxScale]);
+  
   const darkOverlayY = useTransform(scrollYProgress, [0.2, 0.6], ["100%", "0%"]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 0.25], ["0px", "-100px"]);
-  const contentFilter = useMotionTemplate`opacity(${contentOpacity})`;
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const contentY = useTransform(scrollYProgress, [0, 0.15], ["0px", "-80px"]);
+  const contentPointerEvents = useTransform(contentOpacity, (v) => (v < 0.05 ? "none" : "auto"));
+  const contentVisibility = useTransform(contentOpacity, (v) => (v < 0.01 ? "hidden" : "visible"));
 
   return (
     <div ref={heroRef} style={{ height: "280vh", position: "relative" }}>
@@ -94,7 +99,8 @@ export function Hero() {
               position: "absolute",
               inset: 0,
               scale: imageScale,
-              transformOrigin: "50% 100%",
+              transformOrigin: ZOOM_ORIGIN,
+              willChange: "transform",
               ...(heroSrc
                 ? {
                   backgroundImage: `url(${heroSrc})`,
@@ -124,29 +130,7 @@ export function Hero() {
             />
           </motion.div>
 
-          {/* ── Edge-blur layer (heroSrc only) ────────
-            Duplicates the sharp image, masks centre transparent so
-            only edges receive blur — "sharp centre / soft edges" effect.
-            scale(1.1) prevents blur() border artefacts.
-        ──────────────────────────────────────────── */}
-          {heroSrc && (
-            <motion.div
-              style={{
-                position: "absolute",
-                inset: 0,
-                backgroundImage: `url(${heroSrc})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center bottom",
-                filter: "blur(28px)",
-                maskImage:
-                  "radial-gradient(ellipse 60% 62% at 50% 55%, transparent 60%, black 100%)",
-                WebkitMaskImage:
-                  "radial-gradient(ellipse 60% 62% at 50% 55%, transparent 60%, black 100%)",
-                scale: imageScale,
-                transformOrigin: "50% 100%",
-              }}
-            />
-          )}
+
 
           {/* ── Dark overlay ──────────────────────── */}
           <div
@@ -180,9 +164,10 @@ export function Hero() {
               position: "absolute",
               inset: 0,
               pointerEvents: "none",
-              backgroundColor: "var(--bg-current, var(--color-canvas))",
+              backgroundColor: "var(--color-canvas)",
               y: darkOverlayY,
               zIndex: 2,
+              willChange: "transform, opacity",
             }}
           >
             <div
@@ -225,8 +210,10 @@ export function Hero() {
             paddingTop: "clamp(150px, 11vw, 140px)",
             paddingBottom: 0,
             opacity: contentOpacity,
-            filter: contentFilter,
             y: contentY,
+            pointerEvents: contentPointerEvents,
+            visibility: contentVisibility,
+            willChange: "transform, opacity",
           }}
         >
           <Container>

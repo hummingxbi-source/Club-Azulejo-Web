@@ -6,5 +6,3 @@ declare module "*.css" {
   export default content;
 }
 
-/* Allow importing fontsource italic variant */
-declare module "@fontsource-variable/newsreader/wght-italic.css" {}

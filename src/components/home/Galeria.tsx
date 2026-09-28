@@ -139,15 +139,29 @@ export function Galeria() {
           {itemsMostrados.map((item, index) => {
             const spanClass = getDesktopSpanClass(index, itemsMostrados.length);
             return (
-              <Reveal key={item.id} delay={index * 0.05} style={{ display: "contents" }}>
-                <div
-                  className={`galeria-item ${spanClass}`}
-                  aria-label={`Imagen: ${item.titulo}`}
-                  onClick={() => setItemActivo(item)}
-                  style={{
-                    backgroundImage: item.imagenUrl ? `url(${item.imagenUrl})` : "none",
-                  }}
-                >
+              <div key={item.id} className={`galeria-cell ${spanClass}`}>
+                <Reveal delay={index * 0.05} style={{ height: "100%" }}>
+                  <div
+                    className="galeria-item"
+                    aria-label={`Imagen: ${item.titulo}`}
+                    onClick={() => setItemActivo(item)}
+                    style={{ position: "relative", width: "100%", height: "100%" }}
+                  >
+                    {item.imagenUrl && (
+                      <img
+                        src={item.imagenUrl}
+                        alt={item.titulo}
+                        loading="lazy"
+                        decoding="async"
+                        style={{
+                          objectFit: "cover",
+                          width: "100%",
+                          height: "100%",
+                          position: "absolute",
+                          inset: 0,
+                        }}
+                      />
+                    )}
                   {!item.imagenUrl && (
                     <div
                       style={{
@@ -190,6 +204,7 @@ export function Galeria() {
                   </div>
                 </div>
               </Reveal>
+            </div>
             );
           })}
         </div>
@@ -273,6 +288,8 @@ export function Galeria() {
           gap: clamp(12px, 1.5vw, 20px);
         }
         
+
+
         .galeria-item {
           position: relative;
           background-color: var(--color-surface-2);
@@ -280,8 +297,7 @@ export function Galeria() {
           overflow: hidden;
           border: 1px solid var(--color-line);
           cursor: pointer;
-          background-size: cover;
-          background-position: center;
+          height: 100%;
         }
 
         @media (min-width: 1024px) {
@@ -389,7 +405,7 @@ export function Galeria() {
             grid-template-columns: repeat(2, 1fr);
             grid-auto-rows: auto;
           }
-          .galeria-item {
+          .galeria-cell {
             aspect-ratio: 4 / 3;
           }
         }

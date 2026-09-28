@@ -22,6 +22,7 @@ const NAV_LINKS = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeHash, setActiveHash] = useState<string>("");
   const location = useLocation();
@@ -36,6 +37,7 @@ export function Navbar() {
         window.requestAnimationFrame(() => {
           const currentScrollY = window.scrollY;
           setScrolled(currentScrollY > 40);
+          setPastHero(currentScrollY > window.innerHeight * 0.5);
           
           const heroHeight = window.innerHeight * 3.5;
           if (currentScrollY > lastScrollY && currentScrollY > 200) {
@@ -144,6 +146,7 @@ export function Navbar() {
         }}
       >
         <nav
+          className={scrolled ? "nav-pill--scrolled" : ""}
           style={{
             maxWidth: "var(--container-max)",
             marginInline: "auto",
@@ -153,15 +156,10 @@ export function Navbar() {
             height: "56px",
             paddingInline: "24px",
             borderRadius: "var(--radius-pill)",
-            /* Siempre pill; solo cambia fondo y blur */
-            backgroundColor: scrolled ? "rgba(11, 27, 36, 0.82)" : "transparent",
-            backdropFilter: scrolled ? "blur(20px) saturate(1.4)" : "none",
-            WebkitBackdropFilter: scrolled ? "blur(20px) saturate(1.4)" : "none",
             border: `1px solid ${scrolled ? "var(--color-line)" : "transparent"}`,
             transition: [
               "background-color var(--duration-md) var(--ease-out)",
               "border-color var(--duration-md) var(--ease-out)",
-              "backdrop-filter var(--duration-md) var(--ease-out)",
             ].join(", "),
             pointerEvents: "auto",
           }}
@@ -204,10 +202,14 @@ export function Navbar() {
                 if (isHashLink && location.pathname === "/") {
                   e.preventDefault();
                   const target = document.getElementById(id);
-                  // @ts-ignore
-                  if (target && window.lenis) {
+                  if (target) {
                     // @ts-ignore
-                    window.lenis.scrollTo(target, { offset: -80, immediate: false });
+                    if (window.lenis) {
+                      // @ts-ignore
+                      window.lenis.scrollTo(target, { offset: -80, immediate: false });
+                    } else {
+                      target.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
                     window.history.pushState({}, "", to);
                   }
                 }
@@ -235,7 +237,15 @@ export function Navbar() {
           </ul>
 
           {/* ── Desktop right ─────────────────── */}
-          <div className="nav-desktop-right">
+          <div
+            className="nav-desktop-right"
+            style={{
+              opacity: pastHero ? 1 : 0,
+              visibility: pastHero ? "visible" : "hidden",
+              pointerEvents: pastHero ? "auto" : "none",
+              transition: "opacity 0.2s ease-out, visibility 0.2s ease-out",
+            }}
+          >
             <Button
               variant="primary"
               size="md"
@@ -296,10 +306,14 @@ export function Navbar() {
                 if (isHashLink && location.pathname === "/") {
                   e.preventDefault();
                   const target = document.getElementById(id);
-                  // @ts-ignore
-                  if (target && window.lenis) {
+                  if (target) {
                     // @ts-ignore
-                    window.lenis.scrollTo(target, { offset: -80, immediate: false });
+                    if (window.lenis) {
+                      // @ts-ignore
+                      window.lenis.scrollTo(target, { offset: -80, immediate: false });
+                    } else {
+                      target.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
                     window.history.pushState({}, "", to);
                   }
                 }
@@ -366,6 +380,17 @@ export function Navbar() {
           list-style: none;
           margin: 0;
           padding: 0;
+        }
+        .nav-pill--scrolled {
+          background-color: rgba(11,27,36,0.94);
+          transition: background-color var(--duration-md) var(--ease-out), border-color var(--duration-md) var(--ease-out), backdrop-filter var(--duration-md) var(--ease-out);
+        }
+        @media (min-width: 1024px) {
+          .nav-pill--scrolled {
+            background-color: rgba(11,27,36,0.82);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+          }
         }
         .nav-desktop-right {
           display: flex;
