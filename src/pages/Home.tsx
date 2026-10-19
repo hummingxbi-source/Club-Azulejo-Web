@@ -52,7 +52,7 @@ const AR = ["4/5", "1/1", "4/5.4", "4/4.6", "1/1.2", "4/5", "1/1", "4/4.8"];
 export default function Home() {
   const root = useRef<HTMLDivElement>(null);
   const [foto, setFoto] = useState<ItemGaleria | null>(null);
-  const cols = [0, 1, 2].map((c) => GALERIA.filter((_, i) => i % 3 === c));
+  const cols = [0, 1, 2].map((c) => GALERIA.slice(0, 6).filter((_, i) => i % 3 === c));
 
   useLayoutEffect(() => {
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -75,8 +75,7 @@ export default function Home() {
         .from(".mega .ch", { yPercent: 115, rotate: () => gsap.utils.random(-14, 14), stagger: 0.06, duration: 1.2, ease: "expo.out" })
         .from(".hero .flag", { yPercent: -160, opacity: 0, stagger: { each: 0.025, from: "center" }, duration: 1, ease: "back.out(2.2)" }, "<.1")
         .from(".hero .flags path", { opacity: 0, duration: 0.6 }, "<")
-        .from(".hero-copy > *", { y: 40, opacity: 0, stagger: 0.08, duration: 0.9, ease: "power3.out" }, "-=.9")
-        .from(".hero-media", { y: 120, opacity: 0, duration: 1.2, ease: "power3.out" }, "<.1");
+        .from(".hero-copy > *", { y: 40, opacity: 0, stagger: 0.08, duration: 0.9, ease: "power3.out" }, "-=.9");
       if (window.azCover) { gsap.set(".intro", { display: "none" }); hero.play(); } else gsap.timeline()
         .from(".intro img", { scale: 0, rotate: -220, duration: 0.9, ease: "back.out(1.7)" })
         .from(".intro .k span", { yPercent: 110, stagger: 0.05, duration: 0.6, ease: "power4.out" }, "-=.45")
@@ -103,8 +102,6 @@ export default function Home() {
 
       /* Hero en scroll */
       gsap.to(".mega", { yPercent: 35, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
-      gsap.fromTo(".hero-media", { clipPath: "inset(0% 8% 0% 8% round 28px)" }, { clipPath: "inset(0% 0% 0% 0% round 0px)", ease: "none", scrollTrigger: { trigger: ".hero-media", start: "top 85%", end: "top 15%", scrub: true } });
-      gsap.fromTo(".hero-media img", { scale: 1.04 }, { scale: 1, ease: "none", scrollTrigger: { trigger: ".hero-media", start: "top bottom", end: "bottom top", scrub: true } });
 
       /* Cinta + cuerdas de carril, aceleran con la velocidad del scroll */
       loops.push(
@@ -112,6 +109,20 @@ export default function Home() {
         ...gsap.utils.toArray<HTMLElement>(".rope.run i").map((el, i) =>
           gsap.fromTo(el, { x: i % 2 ? -440 : 0 }, { x: i % 2 ? 0 : -440, duration: 7, repeat: -1, ease: "none" })));
       ScrollTrigger.create({ onUpdate: (s) => { const v = s.getVelocity(); gust(v / 900); vel = v / 400; dir = s.direction; } });
+
+      const dive = gsap.timeline({ scrollTrigger: { trigger: ".dive", start: "top top", end: "+=220%", pin: true, scrub: 1 } })
+        .fromTo(".dive-frame", { clipPath: "inset(14% 24% 14% 24% round 36px)" }, { clipPath: "inset(0% 0% 0% 0% round 0px)", ease: "power2.inOut", duration: 2 })
+        .fromTo(".dive-frame img", { scale: 1.35 }, { scale: 1, ease: "power2.out", duration: 2 }, 0);
+      gsap.utils.toArray<HTMLElement>(".dive-words span").forEach((w) => {
+        dive.fromTo(w, { yPercent: 80, opacity: 0, filter: "blur(12px)" }, { yPercent: 0, opacity: 1, filter: "blur(0px)", duration: 0.8 })
+          .to(w, { yPercent: -60, opacity: 0, filter: "blur(10px)", duration: 0.7 }, "+=.5");
+      });
+      dive.to(".dive-frame img", { scale: 1.08, filter: "brightness(.6)", duration: 1 }, "<");
+      const skewEls = gsap.utils.toArray<HTMLElement>(".shot .ph, .gitem, .coach");
+      const setSkew = gsap.quickSetter(skewEls, "skewY", "deg");
+      let skew = 0;
+      const tickSkew = () => { skew += (gsap.utils.clamp(-5, 5, -vel * 1.2) - skew) * 0.12; setSkew(skew); };
+      gsap.ticker.add(tickSkew); offs.push(() => gsap.ticker.remove(tickSkew));
 
       /* Manifiesto palabra por palabra */
       gsap.to(".mani .w", { opacity: 1, stagger: 0.05, ease: "none", scrollTrigger: { trigger: ".mani", start: "top 78%", end: "bottom 55%", scrub: true } });
@@ -206,15 +217,20 @@ export default function Home() {
               <h2>Donde la técnica se convierte en <em>serenidad.</em></h2>
               <div className="btns">
                 <Link className="btn rojo" to="/inscripcion">Inscríbete <span className="arr">→</span></Link>
-                <a className="btn ghost" href="/#club">Conoce el club</a>
+                <Link className="btn ghost" to="/club">Conoce el club</Link>
               </div>
             </div>
           </div>
         </div>
-        <div className="hero-media">
-          <img src={heroImg} alt="Muro con el logo de Club Azulejo, Escuela de Natación, frente a la alberca" fetchPriority="high" />
-        </div>
       </header>
+
+      {/* INMERSIÓN: la foto se abre a pantalla completa y aparecen las palabras */}
+      <section className="dive" aria-label="Respira, flota, avanza">
+        <div className="dive-frame">
+          <img src={heroImg} alt="Muro con el logo de Club Azulejo, Escuela de Natación, frente a la alberca" fetchPriority="high" />
+          <div className="dive-words" aria-hidden>{["Respira.", "Flota.", "Avanza."].map((w) => <span key={w}>{w}</span>)}</div>
+        </div>
+      </section>
 
       {/* CINTA + CUERDAS */}
       <div className="lane-band" aria-hidden>
@@ -256,6 +272,7 @@ export default function Home() {
               </article>
             ))}
           </div>
+          <Link className="btn ghost more" to="/metodo">Conoce el método completo <span className="arr">→</span></Link>
         </div>
       </section>
 
@@ -263,7 +280,7 @@ export default function Home() {
       <section className="club" id="club">
         <div className="wrap club-head reveal">
           <div><span className="eyebrow">El club</span><h2 className="h2 club-h2">Un espacio pensado para <em>el agua.</em></h2></div>
-          <p className="lead">Instalaciones techadas, limpias y cuidadas, con espacios cómodos para que las familias acompañen cada clase.</p>
+          <Link className="btn ghost" to="/club">Recorrer el club <span className="arr">→</span></Link>
         </div>
         <div className="rail">
           {SHOTS.map((s, i) => (
@@ -288,12 +305,12 @@ export default function Home() {
                   <span className="num">{n.numero}</span>
                   <div><h3>{n.nombre}</h3><div className="meta"><span>{n.rangoEdad}</span><span>{n.sesiones}</span></div></div>
                   <div className="ratio">{n.ratio}<small>Alumnos por instructor</small></div>
-                  <ul>{n.hitos.map((h) => <li key={h}>{h}</li>)}</ul>
                 </article>
               </div>
             ))}
             <div className="rope"><i /></div>
           </div>
+          <Link className="btn blanco more" to="/programas">Ver programas y precios <span className="arr">→</span></Link>
         </div>
       </section>
 
@@ -318,12 +335,12 @@ export default function Home() {
                 <div className="ph">
                   <img src={FOTOS[c.id]} alt={c.nombre} loading="lazy" />
                   <span className="tag">{c.especialidadBadge}</span>
-                  <div className="certs"><b>Certificaciones</b><ul>{c.certificaciones.map((x) => <li key={x}>{x}</li>)}</ul></div>
                 </div>
-                <div className="bd"><h3>{c.nombre}</h3><div className="rol">{c.rol}</div><p>{c.bio}</p></div>
+                <div className="bd"><h3>{c.nombre}</h3><div className="rol">{c.rol}</div></div>
               </article>
             ))}
           </div>
+          <Link className="btn rojo more" to="/equipo">Conoce al equipo <span className="arr">→</span></Link>
         </div>
       </section>
 
@@ -343,6 +360,7 @@ export default function Home() {
               </div>
             ))}
           </div>
+          <Link className="btn ghost more" to="/galeria">Ver galería completa <span className="arr">→</span></Link>
         </div>
       </section>
 

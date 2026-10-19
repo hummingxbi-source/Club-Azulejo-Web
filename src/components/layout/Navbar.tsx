@@ -56,13 +56,13 @@ export function Navbar() {
       const a = (e.target as HTMLElement).closest("a");
       const href = a?.getAttribute("href");
       if (!a || !href || e.metaKey || e.ctrlKey || e.shiftKey || a.target === "_blank") return;
-      const m = href.match(/^\/?(#([\w-]+))?$|^\/(inscripcion)$/);
+      const m = href.match(/^\/(metodo|club|programas|equipo|galeria|inscripcion)?(#[\w-]*)?$/);
       if (!m) return;
       e.preventDefault();
       if (busy.current) return;
       setOpen(false);
-      const id = m[2] || (m[3] ? "" : "inicio"), route = m[3] ? "/inscripcion" : "/";
-      const key = m[3] || id;
+      const id = "inicio", route = "/" + (m[1] || "");
+      const key = m[1] || "inicio";
       const k = curtain.current!.querySelector<HTMLElement>(".k")!;
       k.innerHTML = (WORDS[key] || "CLUB AZULEJO").split("").map((c) => `<span>${c === " " ? "&nbsp;" : c}</span>`).join("");
       const jump = () => {
@@ -111,7 +111,7 @@ export function Navbar() {
             <span>Club Azulejo<small>Escuela de natación</small></span>
           </Link>
           <div className="links">
-            {NAV_LINKS.map(([id, t]) => <Link key={id} to={"/#" + id}>{t}</Link>)}
+            {NAV_LINKS.map(([id, t]) => <Link key={id} to={"/" + id} className={pathname === "/" + id ? "on" : ""}>{t}</Link>)}
           </div>
           <div className="right">
             <Link to="/inscripcion" className="btn rojo">Inscríbete <span className="arr">→</span></Link>
@@ -124,7 +124,7 @@ export function Navbar() {
       <div ref={curtain} className="curtain" aria-hidden><div><img src={logo} alt="" /><div className="k" /></div></div>
       {open && (
         <div ref={menu} className="mmenu" role="dialog" aria-modal="true">
-          {NAV_LINKS.map(([id, t]) => <Link key={id} to={"/#" + id}>{t}</Link>)}
+          {NAV_LINKS.map(([id, t]) => <Link key={id} to={"/" + id}>{t}</Link>)}
           <Link to="/inscripcion" className="btn blanco">Inscríbete →</Link>
         </div>
       )}
