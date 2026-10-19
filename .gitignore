@@ -32,3 +32,4 @@ yarn-error.log*
 pnpm-debug.log*
 
 src/assets/images-original/
+.dist-preview.tgz

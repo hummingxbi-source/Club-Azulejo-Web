@@ -1,58 +1,57 @@
 import { useEffect, useRef } from "react";
 import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLocation } from "react-router-dom";
 
-/**
- * Smooth-scroll wrapper powered by Lenis.
- * - Scrolls to top on route change.
- * - Disables itself when prefers-reduced-motion is active.
- */
+declare global {
+  interface Window { azLenis?: Lenis; azCover?: boolean }
+}
+
+gsap.registerPlugin(ScrollTrigger);
+
+/** Lenis sincronizado con el ticker de GSAP para que ScrollTrigger y el scroll suave vayan al mismo cuadro. */
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
   const location = useLocation();
 
   useEffect(() => {
-    const isFine = window.matchMedia("(pointer: fine)").matches;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!isFine || reducedMotion) return;
-
-    const lenis = new Lenis({
-      duration: 1.1,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      touchMultiplier: 1.5,
-      autoRaf: true,
-    });
-
+    const isFine = matchMedia("(pointer: fine)").matches;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!isFine || reduced) return;
+    const lenis = new Lenis({ duration: 1.15, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+    lenis.on("scroll", ScrollTrigger.update);
+    const tick = (t: number) => lenis.raf(t * 1000);
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
     lenisRef.current = lenis;
-    // @ts-ignore - expose globally for anchor scrolling
-    window.lenis = lenis;
-
+    window.azLenis = lenis;
     return () => {
+      gsap.ticker.remove(tick);
       lenis.destroy();
       lenisRef.current = null;
-      // @ts-ignore
-      delete window.lenis;
+      delete window.azLenis;
     };
   }, []);
 
-  /* Scroll to top/hash on route change */
+  const first = useRef(true);
   useEffect(() => {
-    if (lenisRef.current) {
-      if (location.hash) {
-        // Wait a tick for rendering, then scroll to hash
-        setTimeout(() => {
-          lenisRef.current?.scrollTo(location.hash, { offset: -80, immediate: false });
-        }, 100);
-      } else {
-        lenisRef.current.scrollTo(0, { immediate: true });
-      }
-    } else {
-      if (location.hash) {
-        document.querySelector(location.hash)?.scrollIntoView();
-      } else {
-        window.scrollTo(0, 0);
-      }
+    const l = lenisRef.current;
+    if (first.current) {
+      /* Al recargar siempre arranca en la landing, sin #seccion en la URL */
+      first.current = false;
+      history.scrollRestoration = "manual";
+      if (location.hash) history.replaceState(null, "", location.pathname);
+      scrollTo(0, 0);
+      return;
     }
+    if (location.hash) {
+      setTimeout(() => {
+        if (l) l.scrollTo(location.hash, { offset: 0 });
+        else document.querySelector(location.hash)?.scrollIntoView();
+      }, 350);
+    } else if (l) l.scrollTo(0, { immediate: true });
+    else scrollTo(0, 0);
   }, [location.pathname, location.hash]);
 
   return <>{children}</>;
